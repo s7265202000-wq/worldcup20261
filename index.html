@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ 2026 世界盃即時站</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Bebas+Neue&display=swap');
+
+  :root {
+    --bg:       #0a0f0a;
+    --bg2:      #111811;
+    --bg3:      #182018;
+    --green:    #2dff6e;
+    --green2:   #1adb55;
+    --green-dim:#0d6e2a;
+    --gold:     #ffd700;
+    --red:      #ff4444;
+    --text:     #e8f0e8;
+    --muted:    #6b8a6b;
+    --border:   #1e2e1e;
+    --card:     #131f13;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,15,10,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    display: flex; align-items: center; gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--green);
+    letter-spacing: 2px;
+    white-space: nowrap;
+    padding: 14px 16px 14px 0;
+    border-right: 1px solid var(--border);
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .nav-tab {
+    padding: 14px 14px;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  .live-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--red);
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  /* ─── PAGES ─── */
+  .page { display: none; padding: 16px; max-width: 900px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* ─── HERO ─── */
+  .hero {
+    background: linear-gradient(135deg, #0a1a0a 0%, #0f280f 50%, #0a1a0a 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(45,255,110,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-emoji { font-size: 48px; margin-bottom: 8px; display: block; }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(32px, 8vw, 56px);
+    letter-spacing: 3px;
+    color: var(--green);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .hero-sub {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .hero-stats {
+    display: flex; justify-content: center; gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .hero-stat { text-align: center; }
+  .hero-stat-n {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--green);
+    line-height: 1;
+  }
+  .hero-stat-l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ─── SECTION HEADER ─── */
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 20px 0 12px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .section-title span { color: var(--green); }
+  .refresh-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); padding: 4px 10px;
+    border-radius: 6px; cursor: pointer; font-size: 11px;
+    transition: all 0.2s;
+  }
+  .refresh-btn:hover { border-color: var(--green); color: var(--green); }
+
+  /* ─── MATCH CARD ─── */
+  .match-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .match-card:hover { border-color: var(--green-dim); transform: translateY(-1px); }
+  .match-card.live { border-color: var(--red); }
+  .match-card.live::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--red);
+  }
+  .match-card.finished { opacity: 0.75; }
+
+  .match-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .match-group {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--green);
+    background: rgba(45,255,110,0.08);
+    padding: 2px 8px; border-radius: 4px;
+  }
+  .match-time { font-size: 11px; color: var(--muted); }
+  .match-status-live {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--red); font-weight: 600;
+  }
+  .match-status-done { font-size: 11px; color: var(--muted); }
+
+  .match-teams {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px;
+    align-items: center;
+  }
+  .team { display: flex; align-items: center; gap: 8px; }
+  .team.away { flex-direction: row-reverse; }
+  .team-flag { font-size: 22px; flex-shrink: 0; }
+  .team-name { font-size: 14px; font-weight: 600; }
+  .team.away .team-name { text-align: right; }
+
+  .score-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    text-align: center;
+    min-width: 60px;
+  }
+  .score-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px; letter-spacing: 2px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .score-vs { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+  .match-venue { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
+
+  /* ─── DATE GROUP ─── */
+  .date-group { margin-bottom: 4px; }
+  .date-label {
+    font-size: 11px; font-weight: 700;
+    color: var(--muted); letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 12px 0 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .date-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border);
+  }
+  .today-badge {
+    background: var(--green);
+    color: #000; font-size: 9px; font-weight: 800;
+    padding: 2px 6px; border-radius: 4px;
+    letter-spacing: 1px;
+  }
+
+  /* ─── STANDINGS TABLE ─── */
+  .group-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .group-header {
+    background: var(--bg3);
+    padding: 10px 16px;
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--green);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .elim-badge {
+    font-size: 9px; background: rgba(255,68,68,0.15);
+    color: var(--red); padding: 2px 6px; border-radius: 4px;
+    letter-spacing: 1px; font-weight: 700;
+  }
+  .won-badge {
+    font-size: 9px; background: rgba(45,255,110,0.12);
+    color: var(--green); padding: 2px 6px; border-radius: 4px;
+    letter-spacing: 1px; font-weight: 700;
+  }
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .standings-table { width: 100%; border-collapse: collapse; min-width: 380px; }
+  .standings-table th {
+    font-size: 10px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 8px 10px; text-align: center;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .standings-table th:first-child { text-align: left; padding-left: 14px; }
+  .standings-table td {
+    padding: 10px 10px; text-align: center;
+    border-bottom: 1px solid rgba(30,46,30,0.5);
+    font-size: 13px; white-space: nowrap;
+  }
+  .standings-table td:first-child { text-align: left; padding-left: 14px; }
+  .standings-table tr:last-child td { border-bottom: none; }
+  .standings-table tr.advance td:first-child { border-left: 3px solid var(--green); }
+  .standings-table tr.third td:first-child { border-left: 3px solid var(--gold); }
+  .standings-table tr.eliminated { opacity: 0.5; }
+  .team-cell { display: flex; align-items: center; gap: 8px; }
+  .team-pos {
+    width: 16px; text-align: center;
+    font-size: 11px; color: var(--muted); font-weight: 600; flex-shrink: 0;
+  }
+  .pts-cell { font-weight: 700; color: var(--green); }
+  .gd-pos { color: var(--green); }
+  .gd-neg { color: var(--red); }
+  .data-note {
+    font-size: 10px; color: var(--muted); text-align: right;
+    padding: 6px 14px 10px; font-style: italic;
+  }
+
+  /* ─── PREDICTIONS ─── */
+  .pred-podium {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin-bottom: 20px;
+  }
+  .pred-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 12px; text-align: center;
+    transition: border-color 0.2s;
+  }
+  .pred-card.top1 { border-color: var(--gold); }
+  .pred-card.top2 { border-color: #aaa; }
+  .pred-card.top3 { border-color: #cd7f32; }
+  .pred-rank {
+    font-size: 18px; margin-bottom: 4px;
+  }
+  .pred-flag { font-size: 28px; margin-bottom: 4px; }
+  .pred-name { font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+  .pred-prob {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; color: var(--green); line-height: 1;
+  }
+  .pred-odds { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .pred-list-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 8px;
+  }
+  .pred-list-rank { font-size: 12px; color: var(--muted); width: 24px; text-align: center; font-weight: 700; }
+  .pred-list-flag { font-size: 20px; }
+  .pred-list-name { flex: 1; font-size: 13px; font-weight: 600; }
+  .pred-bar-wrap { width: 80px; }
+  .pred-bar-bg { background: var(--bg3); border-radius: 4px; height: 6px; overflow: hidden; }
+  .pred-bar-fill { background: var(--green); border-radius: 4px; height: 100%; transition: width 0.8s ease; }
+  .pred-pct { font-size: 12px; color: var(--green); font-weight: 700; text-align: right; min-width: 38px; }
+
+  /* ─── KNOCKOUT BRACKET ─── */
+  .bracket-note {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px; text-align: center;
+    color: var(--muted); font-size: 13px; line-height: 1.8;
+  }
+  .bracket-note strong { color: var(--green); display: block; font-size: 15px; margin-bottom: 8px; }
+
+  .r16-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-top: 16px;
+  }
+  .r16-match {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px;
+  }
+  .r16-label { font-size: 10px; color: var(--green); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .r16-team {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 0; border-bottom: 1px solid var(--border);
+    font-size: 12px; font-weight: 600;
+  }
+  .r16-team:last-child { border-bottom: none; padding-bottom: 0; }
+  .r16-vs { text-align: center; font-size: 10px; color: var(--muted); padding: 3px 0; }
+
+  /* ─── LOADING / EMPTY ─── */
+  .loading {
+    text-align: center; padding: 40px;
+    color: var(--muted); font-size: 13px;
+  }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── FILTER PILLS ─── */
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .pill {
+    padding: 5px 12px; border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    color: var(--muted); background: var(--card);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .pill:hover { border-color: var(--green-dim); color: var(--text); }
+  .pill.active { background: var(--green); color: #000; border-color: var(--green); }
+
+  /* ─── TIME DISPLAY ─── */
+  .time-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px;
+    margin-bottom: 16px; font-size: 12px;
+  }
+  .time-tpe { color: var(--green); font-weight: 600; }
+  .data-src { color: var(--muted); font-size: 10px; }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  @media (max-width: 480px) {
+    .pred-podium { grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .pred-card { padding: 12px 8px; }
+    .r16-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">⚽ WC2026</div>
+  <div class="nav-tab active" onclick="showPage('home')">首頁</div>
+  <div class="nav-tab" onclick="showPage('schedule')">📅 賽程</div>
+  <div class="nav-tab" onclick="showPage('groups')">🏆 積分</div>
+  <div class="nav-tab" onclick="showPage('predictions')">🔮 預測</div>
+  <div class="nav-tab" onclick="showPage('knockout')">⚔️ 淘汰賽</div>
+</nav>
+
+<!-- ════════════════ HOME ════════════════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <span class="hero-emoji">⚽</span>
+    <h1>WORLD CUP 2026</h1>
+    <div class="hero-sub">USA · Canada · Mexico · 台北時間即時更新</div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-n">48</div><div class="hero-stat-l">參賽隊伍</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">104</div><div class="hero-stat-l">比賽場次</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">16</div><div class="hero-stat-l">主辦城市</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">3</div><div class="hero-stat-l">主辦國家</div></div>
+    </div>
+  </div>
+
+  <div class="time-bar">
+    <div>🕐 台北時間 <span class="time-tpe" id="clock">--:--:--</span></div>
+    <div class="data-src">資料來源：ESPN / FIFA</div>
+  </div>
+
+  <div class="section-head">
+    <div class="section-title">⚡ <span>今日賽事</span></div>
+    <button class="refresh-btn" onclick="loadTodayMatches()">↻ 更新</button>
+  </div>
+  <div id="today-matches"><div class="loading"><div class="spinner"></div>載入中…</div></div>
+
+  <div class="section-head" style="margin-top:24px">
+    <div class="section-title">📊 <span>熱門隊伍即時動態</span></div>
+  </div>
+  <div id="top-teams-home"></div>
+</div>
+
+<!-- ════════════════ SCHEDULE ════════════════ -->
+<div id="page-schedule" class="page">
+  <div class="section-head">
+    <div class="section-title">📅 <span>完整賽程</span></div>
+    <button class="refresh-btn" onclick="renderSchedule()">↻ 更新</button>
+  </div>
+  <div class="pills" id="schedule-filter">
+    <div class="pill active" onclick="filterSchedule('all',this)">全部</div>
+    <div class="pill" onclick="filterSchedule('today',this)">今日</div>
+    <div class="pill" onclick="filterSchedule('upcoming',this)">即將開賽</div>
+    <div class="pill" onclick="filterSchedule('finished',this)">已結束</div>
+  </div>
+  <div id="schedule-list"><div class="loading"><div class="spinner"></div>載入中…</div></div>
+</div>
+
+<!-- ════════════════ GROUPS ════════════════ -->
+<div id="page-groups" class="page">
+  <div class="section-head">
+    <div class="section-title">🏆 <span>小組積分表</span></div>
+    <button class="refresh-btn" onclick="renderGroups()">↻ 更新</button>
+  </div>
+  <div class="pills" id="group-filter">
+    <div class="pill active" onclick="filterGroup('all',this)">全部</div>
+    <div class="pill" onclick="filterGroup('A',this)">A組</div>
+    <div class="pill" onclick="filterGroup('B',this)">B組</div>
+    <div class="pill" onclick="filterGroup('C',this)">C組</div>
+    <div class="pill" onclick="filterGroup('D',this)">D組</div>
+    <div class="pill" onclick="filterGroup('E',this)">E組</div>
+    <div class="pill" onclick="filterGroup('F',this)">F組</div>
+    <div class="pill" onclick="filterGroup('G',this)">G組</div>
+    <div class="pill" onclick="filterGroup('H',this)">H組</div>
+    <div class="pill" onclick="filterGroup('I',this)">I組</div>
+    <div class="pill" onclick="filterGroup('J',this)">J組</div>
+    <div class="pill" onclick="filterGroup('K',this)">K組</div>
+    <div class="pill" onclick="filterGroup('L',this)">L組</div>
+  </div>
+  <div id="groups-list"></div>
+</div>
+
+<!-- ════════════════ PREDICTIONS ════════════════ -->
+<div id="page-predictions" class="page">
+  <div class="section-head">
+    <div class="section-title">🔮 <span>奪冠預測</span></div>
+  </div>
+  <div class="pred-podium" id="pred-podium"></div>
+  <div class="section-head" style="margin-top:8px">
+    <div class="section-title">📋 <span>完整排名</span></div>
+  </div>
+  <div id="pred-full-list"></div>
+</div>
+
+<!-- ════════════════ KNOCKOUT ════════════════ -->
+<div id="page-knockout" class="page">
+  <div class="section-head">
+    <div class="section-title">⚔️ <span>淘汰賽對陣</span></div>
+  </div>
+  <div class="bracket-note">
+    <strong>🏆 2026 世界盃新制：48 隊 → 32 強淘汰賽</strong>
+    小組賽各組前 2 名＋8 支最佳第 3 名，共 32 隊晉級<br>
+    根據目前積分，預測晉級組合如下
+  </div>
+  <div style="margin-top:16px">
+    <div class="section-head"><div class="section-title">🔮 <span>預測 32 強 → 16 強</span></div></div>
+    <div class="r16-grid" id="r16-grid"></div>
+  </div>
+  <div style="margin-top:20px">
+    <div class="section-head"><div class="section-title">🗓️ <span>官方賽程</span></div></div>
+    <div id="knockout-official"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// DATA LAYER
+// ════════════════════════════════════════
+
+const TEAMS = {
+  // Group A
+  'Mexico':       { flag:'🇲🇽', group:'A', name:'墨西哥' },
+  'South Africa': { flag:'🇿🇦', group:'A', name:'南非' },
+  'South Korea':  { flag:'🇰🇷', group:'A', name:'南韓' },
+  'Czech Republic':{ flag:'🇨🇿', group:'A', name:'捷克' },
+  // Group B
+  'Canada':       { flag:'🇨🇦', group:'B', name:'加拿大' },
+  'Bosnia and Herzegovina':{ flag:'🇧🇦', group:'B', name:'波赫' },
+  'Qatar':        { flag:'🇶🇦', group:'B', name:'卡達' },
+  'Switzerland':  { flag:'🇨🇭', group:'B', name:'瑞士' },
+  // Group C
+  'Brazil':       { flag:'🇧🇷', group:'C', name:'巴西' },
+  'Morocco':      { flag:'🇲🇦', group:'C', name:'摩洛哥' },
+  'Haiti':        { flag:'🇭🇹', group:'C', name:'海地' },
+  'Scotland':     { flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', group:'C', name:'蘇格蘭' },
+  // Group D
+  'United States':{ flag:'🇺🇸', group:'D', name:'美國' },
+  'Paraguay':     { flag:'🇵🇾', group:'D', name:'巴拉圭' },
+  'Australia':    { flag:'🇦🇺', group:'D', name:'澳洲' },
+  'Turkey':       { flag:'🇹🇷', group:'D', name:'土耳其' },
+  // Group E
+  'Germany':      { flag:'🇩🇪', group:'E', name:'德國' },
+  'Curaçao':      { flag:'🇨🇼', group:'E', name:'庫拉索' },
+  'Ivory Coast':  { flag:'🇨🇮', group:'E', name:'象牙海岸' },
+  'Ecuador':      { flag:'🇪🇨', group:'E', name:'厄瓜多' },
+  // Group F
+  'Netherlands':  { flag:'🇳🇱', group:'F', name:'荷蘭' },
+  'Japan':        { flag:'🇯🇵', group:'F', name:'日本' },
+  'Sweden':       { flag:'🇸🇪', group:'F', name:'瑞典' },
+  'Tunisia':      { flag:'🇹🇳', group:'F', name:'突尼西亞' },
+  // Group G
+  'Belgium':      { flag:'🇧🇪', group:'G', name:'比利時' },
+  'Egypt':        { flag:'🇪🇬', group:'G', name:'埃及' },
+  'Iran':         { flag:'🇮🇷', group:'G', name:'伊朗' },
+  'New Zealand':  { flag:'🇳🇿', group:'G', name:'紐西蘭' },
+  // Group H
+  'Spain':        { flag:'🇪🇸', group:'H', name:'西班牙' },
+  'Cape Verde':   { flag:'🇨🇻', group:'H', name:'維德角' },
+  'Saudi Arabia': { flag:'🇸🇦', group:'H', name:'沙烏地阿拉伯' },
+  'Uruguay':      { flag:'🇺🇾', group:'H', name:'烏拉圭' },
+  // Group I
+  'France':       { flag:'🇫🇷', group:'I', name:'法國' },
+  'Senegal':      { flag:'🇸🇳', group:'I', name:'塞內加爾' },
+  'Iraq':         { flag:'🇮🇶', group:'I', name:'伊拉克' },
+  'Norway':       { flag:'🇳🇴', group:'I', name:'挪威' },
+  // Group J
+  'Argentina':    { flag:'🇦🇷', group:'J', name:'阿根廷' },
+  'Algeria':      { flag:'🇩🇿', group:'J', name:'阿爾及利亞' },
+  'Austria':      { flag:'🇦🇹', group:'J', name:'奧地利' },
+  'Jordan':       { flag:'🇯🇴', group:'J', name:'約旦' },
+  // Group K
+  'Portugal':     { flag:'🇵🇹', group:'K', name:'葡萄牙' },
+  'DR Congo':     { flag:'🇨🇩', group:'K', name:'剛果民主共和國' },
+  'Uzbekistan':   { flag:'🇺🇿', group:'K', name:'烏茲別克' },
+  'Colombia':     { flag:'🇨🇴', group:'K', name:'哥倫比亞' },
+  // Group L
+  'England':      { flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', group:'L', name:'英格蘭' },
+  'Croatia':      { flag:'🇭🇷', group:'L', name:'克羅埃西亞' },
+  'Ghana':        { flag:'🇬🇭', group:'L', name:'迦納' },
+  'Panama':       { flag:'🇵🇦', group:'L', name:'巴拿馬' },
+};
+
+const MATCHES = [
+  { id:1, date:'2026-06-11', kickoff:'03:00', home:'Mexico',       away:'South Africa',  homeScore:2, awayScore:0, status:'finished', venue:'Mexico City',   group:'A' },
+  { id:2, date:'2026-06-11', kickoff:'10:00', home:'South Korea',  away:'Czech Republic',homeScore:2, awayScore:1, status:'finished', venue:'Zapopan',       group:'A' },
+  { id:3, date:'2026-06-12', kickoff:'03:00', home:'Canada',       away:'Bosnia and Herzegovina', homeScore:1, awayScore:1, status:'finished', venue:'Toronto', group:'B' },
+  { id:4, date:'2026-06-12', kickoff:'09:00', home:'United States',away:'Paraguay',       homeScore:4, awayScore:1, status:'finished', venue:'Inglewood',     group:'D' },
+  { id:5, date:'2026-06-13', kickoff:'03:00', home:'Qatar',        away:'Switzerland',   homeScore:null, awayScore:null, status:'scheduled', venue:'Santa Clara', group:'B' },
+  { id:6, date:'2026-06-13', kickoff:'06:00', home:'Brazil',       away:'Morocco',       homeScore:null, awayScore:null, status:'scheduled', venue:'East Rutherford', group:'C' },
+  { id:7, date:'2026-06-13', kickoff:'09:00', home:'Haiti',        away:'Scotland',      homeScore:null, awayScore:null, status:'scheduled', venue:'Foxborough', group:'C' },
+  { id:8, date:'2026-06-13', kickoff:'12:00', home:'Australia',    away:'Turkey',        homeScore:null, awayScore:null, status:'scheduled', venue:'Vancouver',  group:'D' },
+  { id:9, date:'2026-06-14', kickoff:'01:00', home:'Germany',      away:'Curaçao',       homeScore:null, awayScore:null, status:'scheduled', venue:'Houston',    group:'E' },
+  { id:10,date:'2026-06-14', kickoff:'04:00', home:'Netherlands',  away:'Japan',         homeScore:null, awayScore:null, status:'scheduled', venue:'Arlington',  group:'F' },
+  { id:11,date:'2026-06-14', kickoff:'07:00', home:'Ivory Coast',  away:'Ecuador',       homeScore:null, awayScore:null, status:'scheduled', venue:'Philadelphia', group:'E' },
+  { id:12,date:'2026-06-14', kickoff:'10:00', home:'Sweden',       away:'Tunisia',       homeScore:null, awayScore:null, status:'scheduled', venue:'Guadalupe',  group:'F' },
+  { id:13,date:'2026-06-15', kickoff:'00:00', home:'Spain',        away:'Cape Verde',    homeScore:null, awayScore:null, status:'scheduled', venue:'Atlanta',    group:'H' },
+  { id:14,date:'2026-06-15', kickoff:'03:00', home:'Belgium',      away:'Egypt',         homeScore:null, awayScore:null, status:'scheduled', venue:'Seattle',    group:'G' },
+  { id:15,date:'2026-06-15', kickoff:'06:00', home:'Saudi Arabia', away:'Uruguay',       homeScore:null, awayScore:null, status:'scheduled', venue:'Miami Gardens', group:'H' },
+  { id:16,date:'2026-06-15', kickoff:'09:00', home:'Iran',         away:'New Zealand',   homeScore:null, awayScore:null, status:'scheduled', venue:'Inglewood',  group:'G' },
+  { id:17,date:'2026-06-16', kickoff:'03:00', home:'France',       away:'Senegal',       homeScore:null, awayScore:null, status:'scheduled', venue:'East Rutherford', group:'I' },
+  { id:18,date:'2026-06-16', kickoff:'06:00', home:'Iraq',         away:'Norway',        homeScore:null, awayScore:null, status:'scheduled', venue:'Foxborough', group:'I' },
+  { id:19,date:'2026-06-16', kickoff:'09:00', home:'Argentina',    away:'Algeria',       homeScore:null, awayScore:null, status:'scheduled', venue:'Kansas City', group:'J' },
+  { id:20,date:'2026-06-16', kickoff:'12:00', home:'Austria',      away:'Jordan',        homeScore:null, awayScore:null, status:'scheduled', venue:'Santa Clara', group:'J' },
+  { id:21,date:'2026-06-17', kickoff:'01:00', home:'Portugal',     away:'DR Congo',      homeScore:null, awayScore:null, status:'scheduled', venue:'Houston',    group:'K' },
+  { id:22,date:'2026-06-17', kickoff:'04:00', home:'England',      away:'Croatia',       homeScore:null, awayScore:null, status:'scheduled', venue:'Arlington',  group:'L' },
+  { id:23,date:'2026-06-17', kickoff:'07:00', home:'Ghana',        away:'Panama',        homeScore:null, awayScore:null, status:'scheduled', venue:'Toronto',    group:'L' },
+  { id:24,date:'2026-06-17', kickoff:'10:00', home:'Uzbekistan',   away:'Colombia',      homeScore:null, awayScore:null, status:'scheduled', venue:'Mexico City', group:'K' },
+  { id:25,date:'2026-06-18', kickoff:'00:00', home:'Czech Republic',away:'South Africa', homeScore:null, awayScore:null, status:'scheduled', venue:'Atlanta',    group:'A' },
+  { id:26,date:'2026-06-18', kickoff:'03:00', home:'Switzerland',  away:'Bosnia and Herzegovina', homeScore:null, awayScore:null, status:'scheduled', venue:'Inglewood', group:'B' },
+  { id:27,date:'2026-06-18', kickoff:'06:00', home:'Canada',       away:'Qatar',         homeScore:null, awayScore:null, status:'scheduled', venue:'Vancouver',  group:'B' },
+  { id:28,date:'2026-06-18', kickoff:'09:00', home:'Mexico',       away:'South Korea',   homeScore:null, awayScore:null, status:'scheduled', venue:'Zapopan',    group:'A' },
+  { id:29,date:'2026-06-19', kickoff:'03:00', home:'United States',away:'Australia',     homeScore:null, awayScore:null, status:'scheduled', venue:'Seattle',    group:'D' },
+  { id:30,date:'2026-06-19', kickoff:'06:00', home:'Scotland',     away:'Morocco',       homeScore:null, awayScore:null, status:'scheduled', venue:'Foxborough', group:'C' },
+  { id:31,date:'2026-06-19', kickoff:'08:30', home:'Brazil',       away:'Haiti',         homeScore:null, awayScore:null, status:'scheduled', venue:'Philadelphia', group:'C' },
+  { id:32,date:'2026-06-19', kickoff:'11:00', home:'Turkey',       away:'Paraguay',      homeScore:null, awayScore:null, status:'scheduled', venue:'Santa Clara', group:'D' },
+  { id:33,date:'2026-06-20', kickoff:'01:00', home:'Netherlands',  away:'Sweden',        homeScore:null, awayScore:null, status:'scheduled', venue:'Houston',    group:'F' },
+  { id:34,date:'2026-06-20', kickoff:'04:00', home:'Germany',      away:'Ivory Coast',   homeScore:null, awayScore:null, status:'scheduled', venue:'Toronto',    group:'E' },
+  { id:35,date:'2026-06-20', kickoff:'08:00', home:'Ecuador',      away:'Curaçao',       homeScore:null, awayScore:null, status:'scheduled', venue:'Kansas City', group:'E' },
+  { id:36,date:'2026-06-20', kickoff:'12:00', home:'Tunisia',      away:'Japan',         homeScore:null, awayScore:null, status:'scheduled', venue:'Guadalupe',  group:'F' },
+  { id:37,date:'2026-06-21', kickoff:'00:00', home:'Spain',        away:'Saudi Arabia',  homeScore:null, awayScore:null, status:'scheduled', venue:'Atlanta',    group:'H' },
+  { id:38,date:'2026-06-21', kickoff:'03:00', home:'Belgium',      away:'Iran',          homeScore:null, awayScore:null, status:'scheduled', venue:'Inglewood',  group:'G' },
+  { id:39,date:'2026-06-21', kickoff:'06:00', home:'Uruguay',      away:'Cape Verde',    homeScore:null, awayScore:null, status:'scheduled', venue:'Miami Gardens', group:'H' },
+  { id:40,date:'2026-06-21', kickoff:'09:00', home:'New Zealand',  away:'Egypt',         homeScore:null, awayScore:null, status:'scheduled', venue:'Vancouver',  group:'G' },
+  { id:41,date:'2026-06-22', kickoff:'01:00', home:'Argentina',    away:'Austria',       homeScore:null, awayScore:null, status:'scheduled', venue:'Arlington',  group:'J' },
+  { id:42,date:'2026-06-22', kickoff:'05:00', home:'France',       away:'Iraq',          homeScore:null, awayScore:null, status:'scheduled', venue:'Philadelphia', group:'I' },
+  { id:43,date:'2026-06-22', kickoff:'08:00', home:'Norway',       away:'Senegal',       homeScore:null, awayScore:null, status:'scheduled', venue:'East Rutherford', group:'I' },
+  { id:44,date:'2026-06-22', kickoff:'11:00', home:'Jordan',       away:'Algeria',       homeScore:null, awayScore:null, status:'scheduled', venue:'Santa Clara', group:'J' },
+  { id:45,date:'2026-06-23', kickoff:'01:00', home:'Portugal',     away:'Uzbekistan',    homeScore:null, awayScore:null, status:'scheduled', venue:'Houston',    group:'K' },
+  { id:46,date:'2026-06-23', kickoff:'04:00', home:'England',      away:'Ghana',         homeScore:null, awayScore:null, status:'scheduled', venue:'Foxborough', group:'L' },
+  { id:47,date:'2026-06-23', kickoff:'07:00', home:'Panama',       away:'Croatia',       homeScore:null, awayScore:null, status:'scheduled', venue:'Toronto',    group:'L' },
+  { id:48,date:'2026-06-23', kickoff:'10:00', home:'Colombia',     away:'DR Congo',      homeScore:null, awayScore:null, status:'scheduled', venue:'Zapopan',    group:'K' },
+];
+
+// Group standings data (from scraped site)
+// 資料來源：NBC Sports / FIFA 官網，截至 2026-06-22（第2輪後）
+// status: 'advance'=晉級, 'third'=第3名競爭, 'elim'=已淘汰, 'winner'=組冠軍
+const STANDINGS = {
+  A: [
+    { team:'Mexico',        mp:2,w:2,d:0,l:0,gf:5,ga:2,gd:3,pts:6,  status:'winner' },
+    { team:'South Korea',   mp:2,w:1,d:0,l:1,gf:3,ga:2,gd:1,pts:3,  status:'third' },
+    { team:'Czech Republic',mp:2,w:0,d:1,l:1,gf:2,ga:3,gd:-1,pts:1, status:'third' },
+    { team:'South Africa',  mp:2,w:0,d:1,l:1,gf:2,ga:5,gd:-3,pts:1, status:'third' },
+  ],
+  B: [
+    { team:'Canada',        mp:2,w:1,d:1,l:0,gf:3,ga:0,gd:3,pts:4,  status:'advance' },
+    { team:'Switzerland',   mp:2,w:1,d:1,l:0,gf:2,ga:-1,gd:3,pts:4, status:'advance' },
+    { team:'Bosnia and Herzegovina',mp:2,w:0,d:1,l:1,gf:1,ga:2,gd:-3,pts:1, status:'third' },
+    { team:'Qatar',         mp:2,w:0,d:1,l:1,gf:0,ga:3,gd:-6,pts:1, status:'third' },
+  ],
+  C: [
+    { team:'Brazil',        mp:2,w:1,d:1,l:0,gf:3,ga:1,gd:2,pts:4,  status:'advance' },
+    { team:'Morocco',       mp:2,w:1,d:1,l:0,gf:2,ga:1,gd:1,pts:4,  status:'advance' },
+    { team:'Scotland',      mp:2,w:1,d:0,l:1,gf:2,ga:2,gd:0,pts:3,  status:'third' },
+    { team:'Haiti',         mp:2,w:0,d:0,l:2,gf:0,ga:3,gd:-4,pts:0, status:'elim' },
+  ],
+  D: [
+    { team:'United States', mp:2,w:2,d:0,l:0,gf:6,ga:1,gd:5,pts:6,  status:'winner' },
+    { team:'Australia',     mp:2,w:1,d:0,l:1,gf:2,ga:2,gd:0,pts:3,  status:'third' },
+    { team:'Paraguay',      mp:2,w:1,d:0,l:1,gf:2,ga:4,gd:-2,pts:3, status:'third' },
+    { team:'Turkey',        mp:2,w:0,d:0,l:2,gf:0,ga:3,gd:-3,pts:0, status:'elim' },
+  ],
+  E: [
+    { team:'Germany',       mp:2,w:2,d:0,l:0,gf:8,ga:1,gd:7,pts:6,  status:'winner' },
+    { team:'Ivory Coast',   mp:2,w:1,d:0,l:1,gf:2,ga:2,gd:0,pts:3,  status:'third' },
+    { team:'Ecuador',       mp:2,w:0,d:1,l:1,gf:1,ga:2,gd:-1,pts:1, status:'third' },
+    { team:'Curaçao',       mp:2,w:0,d:1,l:1,gf:1,ga:7,gd:-6,pts:1, status:'third' },
+  ],
+  F: [
+    { team:'Netherlands',   mp:2,w:1,d:1,l:0,gf:3,ga:1,gd:4,pts:4,  status:'advance' },
+    { team:'Japan',         mp:2,w:1,d:1,l:0,gf:3,ga:1,gd:4,pts:4,  status:'advance' },
+    { team:'Sweden',        mp:2,w:1,d:0,l:1,gf:2,ga:2,gd:0,pts:3,  status:'third' },
+    { team:'Tunisia',       mp:2,w:0,d:0,l:2,gf:0,ga:8,gd:-8,pts:0, status:'elim' },
+  ],
+  G: [
+    { team:'Egypt',         mp:2,w:1,d:1,l:0,gf:3,ga:1,gd:2,pts:4,  status:'advance' },
+    { team:'Iran',          mp:2,w:0,d:2,l:0,gf:1,ga:1,gd:0,pts:2,  status:'third' },
+    { team:'Belgium',       mp:2,w:0,d:2,l:0,gf:1,ga:1,gd:0,pts:2,  status:'third' },
+    { team:'New Zealand',   mp:2,w:0,d:1,l:1,gf:1,ga:3,gd:-2,pts:1, status:'third' },
+  ],
+  H: [
+    { team:'Spain',         mp:2,w:1,d:1,l:0,gf:5,ga:1,gd:4,pts:4,  status:'advance' },
+    { team:'Uruguay',       mp:2,w:0,d:2,l:0,gf:2,ga:2,gd:0,pts:2,  status:'third' },
+    { team:'Cape Verde',    mp:2,w:0,d:2,l:0,gf:2,ga:2,gd:0,pts:2,  status:'third' },
+    { team:'Saudi Arabia',  mp:2,w:0,d:1,l:1,gf:1,ga:5,gd:-4,pts:1, status:'third' },
+  ],
+  I: [
+    { team:'Norway',        mp:2,w:1,d:0,l:1,gf:4,ga:1,gd:3,pts:3,  status:'advance' },
+    { team:'France',        mp:2,w:1,d:0,l:1,gf:4,ga:2,gd:2,pts:3,  status:'advance' },
+    { team:'Senegal',       mp:2,w:0,d:0,l:2,gf:0,ga:2,gd:-2,pts:0, status:'third' },
+    { team:'Iraq',          mp:2,w:0,d:0,l:2,gf:0,ga:3,gd:-3,pts:0, status:'third' },
+  ],
+  J: [
+    { team:'Argentina',     mp:2,w:1,d:0,l:1,gf:4,ga:1,gd:3,pts:3,  status:'advance' },
+    { team:'Austria',       mp:2,w:1,d:0,l:1,gf:3,ga:1,gd:2,pts:3,  status:'advance' },
+    { team:'Jordan',        mp:2,w:0,d:0,l:2,gf:0,ga:2,gd:-2,pts:0, status:'third' },
+    { team:'Algeria',       mp:2,w:0,d:0,l:2,gf:0,ga:3,gd:-3,pts:0, status:'third' },
+  ],
+  K: [
+    { team:'Colombia',      mp:2,w:1,d:0,l:1,gf:3,ga:1,gd:2,pts:3,  status:'advance' },
+    { team:'DR Congo',      mp:2,w:0,d:1,l:1,gf:1,ga:1,gd:0,pts:1,  status:'third' },
+    { team:'Portugal',      mp:2,w:0,d:1,l:1,gf:1,ga:1,gd:0,pts:1,  status:'third' },
+    { team:'Uzbekistan',    mp:2,w:0,d:0,l:2,gf:0,ga:2,gd:-2,pts:0, status:'third' },
+  ],
+  L: [
+    { team:'England',       mp:2,w:1,d:0,l:1,gf:3,ga:1,gd:2,pts:3,  status:'advance' },
+    { team:'Ghana',         mp:2,w:1,d:0,l:1,gf:2,ga:1,gd:1,pts:3,  status:'advance' },
+    { team:'Panama',        mp:2,w:0,d:0,l:2,gf:0,ga:1,gd:-1,pts:0, status:'third' },
+    { team:'Croatia',       mp:2,w:0,d:0,l:2,gf:0,ga:2,gd:-2,pts:0, status:'third' },
+  ],
+};
+
+const PREDICTIONS = [
+  { team:'Argentina', prob:8.08, odds:5.5, pts:6, gd:5 },
+  { team:'France',    prob:7.29, odds:6.5, pts:6, gd:5 },
+  { team:'Germany',   prob:5.93, odds:12,  pts:6, gd:7 },
+  { team:'England',   prob:5.65, odds:9,   pts:3, gd:2 },
+  { team:'Brazil',    prob:5.25, odds:7,   pts:4, gd:3 },
+  { team:'Spain',     prob:5.00, odds:8.5, pts:4, gd:4 },
+  { team:'Mexico',    prob:4.39, odds:19,  pts:6, gd:3 },
+  { team:'Colombia',  prob:3.99, odds:21,  pts:3, gd:2 },
+  { team:'United States',prob:3.98, odds:51,pts:6, gd:5 },
+  { team:'Netherlands',prob:3.79, odds:15, pts:4, gd:4 },
+  { team:'Norway',    prob:3.16, odds:81,  pts:6, gd:4 },
+  { team:'Portugal',  prob:2.86, odds:11,  pts:1, gd:0 },
+  { team:'Japan',     prob:2.80, odds:41,  pts:4, gd:4 },
+  { team:'Morocco',   prob:2.58, odds:34,  pts:4, gd:1 },
+  { team:'South Korea',prob:1.74, odds:101,pts:3, gd:1 },
+];
+
+// ════════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════════
+
+function teamInfo(name) {
+  return TEAMS[name] || { flag:'🏳️', name: name, group:'?' };
+}
+
+function tpeDate(dateStr, kickoff) {
+  // All times already in TPE (UTC+8)
+  return `${dateStr} ${kickoff}`;
+}
+
+function isToday(dateStr) {
+  const now = new Date();
+  const tpe = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+  const todayStr = `${tpe.getFullYear()}-${String(tpe.getMonth()+1).padStart(2,'0')}-${String(tpe.getDate()).padStart(2,'0')}`;
+  return dateStr === todayStr;
+}
+
+function isTomorrow(dateStr) {
+  const now = new Date();
+  const tpe = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+  tpe.setDate(tpe.getDate()+1);
+  const tStr = `${tpe.getFullYear()}-${String(tpe.getMonth()+1).padStart(2,'0')}-${String(tpe.getDate()).padStart(2,'0')}`;
+  return dateStr === tStr;
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00+08:00');
+  const weekdays = ['日','一','二','三','四','五','六'];
+  return `${d.getMonth()+1}月${d.getDate()}日 星期${weekdays[d.getDay()]}`;
+}
+
+function gdClass(gd) {
+  if (gd > 0) return 'gd-pos';
+  if (gd < 0) return 'gd-neg';
+  return '';
+}
+
+function renderMatchCard(m) {
+  const h = teamInfo(m.home);
+  const a = teamInfo(m.away);
+  const live = m.status === 'live';
+  const done = m.status === 'finished';
+  const statusHtml = live
+    ? `<div class="match-status-live"><span class="live-dot"></span>直播中</div>`
+    : done
+      ? `<div class="match-status-done">已結束</div>`
+      : `<div class="match-time">台北 ${m.kickoff}</div>`;
+  const scoreHtml = done || live
+    ? `<div class="score-box"><div class="score-num">${m.homeScore} - ${m.awayScore}</div></div>`
+    : `<div class="score-box"><div class="score-vs">VS</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${m.kickoff}</div></div>`;
+  return `
+  <div class="match-card ${live?'live':''} ${done?'finished':''}">
+    <div class="match-meta">
+      <div class="match-group">${m.group}組</div>
+      ${statusHtml}
+    </div>
+    <div class="match-teams">
+      <div class="team">
+        <div class="team-flag">${h.flag}</div>
+        <div class="team-name">${h.name}</div>
+      </div>
+      ${scoreHtml}
+      <div class="team away">
+        <div class="team-flag">${a.flag}</div>
+        <div class="team-name">${a.name}</div>
+      </div>
+    </div>
+    <div class="match-venue">📍 ${m.venue}</div>
+  </div>`;
+}
+
+// ════════════════════════════════════════
+// PAGE RENDERERS
+// ════════════════════════════════════════
+
+function loadTodayMatches() {
+  const el = document.getElementById('today-matches');
+  const tpe = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+  const todayStr = `${tpe.getFullYear()}-${String(tpe.getMonth()+1).padStart(2,'0')}-${String(tpe.getDate()).padStart(2,'0')}`;
+
+  const todayMatches = MATCHES.filter(m => m.date === todayStr);
+  const upcomingMatches = MATCHES.filter(m => m.date > todayStr).slice(0,4);
+
+  if (todayMatches.length === 0) {
+    let html = '<div class="bracket-note"><strong>今日無賽事</strong>台北時間 ' + todayStr + ' 沒有安排比賽</div>';
+    html += '<div class="section-head" style="margin-top:20px"><div class="section-title">⏭️ <span>即將開賽</span></div></div>';
+    upcomingMatches.forEach(m => { html += renderMatchCard(m); });
+    el.innerHTML = html;
+  } else {
+    el.innerHTML = todayMatches.map(renderMatchCard).join('');
+  }
+
+  // Top teams
+  const topEl = document.getElementById('top-teams-home');
+  const top3 = PREDICTIONS.slice(0,3);
+  topEl.innerHTML = top3.map(p => {
+    const t = teamInfo(p.team);
+    return `<div class="pred-list-item">
+      <div class="pred-list-flag">${t.flag}</div>
+      <div class="pred-list-name">${t.name}</div>
+      <div class="pred-bar-wrap">
+        <div class="pred-bar-bg"><div class="pred-bar-fill" style="width:${p.prob*8}%"></div></div>
+      </div>
+      <div class="pred-pct">${p.prob}%</div>
+      <div style="font-size:11px;color:var(--muted);min-width:40px;text-align:right">賠率 ${p.odds}</div>
+    </div>`;
+  }).join('');
+}
+
+let scheduleFilter = 'all';
+function renderSchedule() {
+  const el = document.getElementById('schedule-list');
+  const tpe = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+  const todayStr = `${tpe.getFullYear()}-${String(tpe.getMonth()+1).padStart(2,'0')}-${String(tpe.getDate()).padStart(2,'0')}`;
+
+  let matches = [...MATCHES];
+  if (scheduleFilter === 'today')    matches = matches.filter(m => m.date === todayStr);
+  if (scheduleFilter === 'upcoming') matches = matches.filter(m => m.status === 'scheduled' && m.date >= todayStr);
+  if (scheduleFilter === 'finished') matches = matches.filter(m => m.status === 'finished');
+
+  if (matches.length === 0) {
+    el.innerHTML = '<div class="loading">此篩選條件無賽事</div>';
+    return;
+  }
+
+  // Group by date
+  const byDate = {};
+  matches.forEach(m => {
+    if (!byDate[m.date]) byDate[m.date] = [];
+    byDate[m.date].push(m);
+  });
+
+  let html = '';
+  Object.keys(byDate).sort().forEach(date => {
+    const label = formatDate(date);
+    const todayBadge = isToday(date) ? '<span class="today-badge">TODAY</span>' : '';
+    const tomorrowBadge = isTomorrow(date) ? '<span class="today-badge" style="background:var(--green-dim);color:var(--green)">明天</span>' : '';
+    html += `<div class="date-group">
+      <div class="date-label">${label} ${todayBadge}${tomorrowBadge}</div>
+      ${byDate[date].map(renderMatchCard).join('')}
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function filterSchedule(f, el) {
+  scheduleFilter = f;
+  document.querySelectorAll('#schedule-filter .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderSchedule();
+}
+
+let groupFilter = 'all';
+function renderGroups() {
+  const el = document.getElementById('groups-list');
+  const groups = groupFilter === 'all' ? Object.keys(STANDINGS) : [groupFilter];
+  let html = '';
+  groups.forEach(g => {
+    const rows = [...STANDINGS[g]].sort((a,b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+    // 判斷是否有組冠軍
+    const hasWinner = rows[0].status === 'winner';
+    let headerBadge = hasWinner ? `<span class="won-badge">已確定晉級</span>` : '';
+
+    html += `<div class="group-card">
+      <div class="group-header"><span>第 ${g} 組</span>${headerBadge}</div>
+      <div class="table-scroll">
+      <table class="standings-table">
+        <thead><tr>
+          <th style="min-width:140px">隊伍</th>
+          <th title="已賽">賽</th><th title="勝">勝</th><th title="平">平</th><th title="負">負</th>
+          <th title="進球">進</th><th title="失球">失</th><th title="得失球差">差</th>
+          <th title="積分">積分</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map((r,i) => {
+            const t = teamInfo(r.team);
+            const isElim = r.status === 'elim';
+            const isAdvance = r.status === 'advance' || r.status === 'winner';
+            const isThird = r.status === 'third' && i === 2;
+            let rowClass = isElim ? 'eliminated' : isAdvance ? 'advance' : isThird ? 'third' : '';
+            let advIcon = isAdvance ? '<span style="font-size:9px;color:var(--green)">↑</span>'
+                        : isElim   ? '<span style="font-size:9px;color:var(--red)">✕</span>' : '';
+            return `<tr class="${rowClass}">
+              <td><div class="team-cell">
+                <span class="team-pos">${i+1}</span>
+                <span>${t.flag}</span>
+                <span style="font-weight:600">${t.name}</span>
+                ${advIcon}
+              </div></td>
+              <td>${r.mp}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>
+              <td>${r.gf}</td><td>${r.ga}</td>
+              <td class="${gdClass(r.gd)}">${r.gd>0?'+':''}${r.gd}</td>
+              <td class="pts-cell">${r.pts}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      </div>
+      <div class="data-note">📡 資料：NBC Sports / FIFA · 更新至第2輪（2026-06-22）</div>
+    </div>`;
+  });
+  // 凡例說明
+  html += `<div style="display:flex;gap:16px;flex-wrap:wrap;padding:4px 0 12px;font-size:11px;color:var(--muted)">
+    <span><span style="color:var(--green)">■</span> 已晉級/組冠軍</span>
+    <span><span style="color:var(--gold)">■</span> 第3名競爭</span>
+    <span style="opacity:0.5">■ 已淘汰</span>
+  </div>`;
+  el.innerHTML = html;
+}
+
+function filterGroup(g, el) {
+  groupFilter = g;
+  document.querySelectorAll('#group-filter .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderGroups();
+}
+
+function renderPredictions() {
+  // Podium top 3
+  const podiumEl = document.getElementById('pred-podium');
+  const top3 = PREDICTIONS.slice(0,3);
+  const medals = ['🥇','🥈','🥉'];
+  const cls = ['top1','top2','top3'];
+  podiumEl.innerHTML = top3.map((p,i) => {
+    const t = teamInfo(p.team);
+    return `<div class="pred-card ${cls[i]}">
+      <div class="pred-rank">${medals[i]}</div>
+      <div class="pred-flag">${t.flag}</div>
+      <div class="pred-name">${t.name}</div>
+      <div class="pred-prob">${p.prob}%</div>
+      <div class="pred-odds">賠率 ${p.odds}</div>
+    </div>`;
+  }).join('');
+
+  // Full list
+  const listEl = document.getElementById('pred-full-list');
+  listEl.innerHTML = PREDICTIONS.map((p,i) => {
+    const t = teamInfo(p.team);
+    const barW = Math.min(100, (p.prob / 8.08) * 100);
+    return `<div class="pred-list-item">
+      <div class="pred-list-rank">${i+1}</div>
+      <div class="pred-list-flag">${t.flag}</div>
+      <div class="pred-list-name">${t.name}</div>
+      <div class="pred-bar-wrap">
+        <div class="pred-bar-bg"><div class="pred-bar-fill" style="width:${barW}%"></div></div>
+      </div>
+      <div class="pred-pct">${p.prob}%</div>
+      <div style="font-size:11px;color:var(--muted);min-width:50px;text-align:right">@${p.odds}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderKnockout() {
+  // Predicted R32 based on current standings
+  const r16pairs = [
+    { label:'A1 vs B2', home:{team:'Mexico',note:'A組第1'}, away:{team:'Canada',note:'B組第2'} },
+    { label:'B1 vs A2', home:{team:'Canada',note:'B組第1'}, away:{team:'South Korea',note:'A組第2'} },
+    { label:'C1 vs D2', home:{team:'Brazil',note:'C組預測第1'}, away:{team:'United States',note:'D組第1'} },
+    { label:'D1 vs C2', home:{team:'United States',note:'D組第1'}, away:{team:'Morocco',note:'C組預測第2'} },
+    { label:'E1 vs F2', home:{team:'Germany',note:'E組預測第1'}, away:{team:'Netherlands',note:'F組預測第1'} },
+    { label:'F1 vs E2', home:{team:'Netherlands',note:'F組預測第1'}, away:{team:'Germany',note:'E組預測第1'} },
+    { label:'G1 vs H2', home:{team:'Belgium',note:'G組預測第1'}, away:{team:'Spain',note:'H組預測第1'} },
+    { label:'H1 vs G2', home:{team:'Spain',note:'H組預測第1'}, away:{team:'Egypt',note:'G組預測第2'} },
+    { label:'I1 vs J2', home:{team:'France',note:'I組預測第1'}, away:{team:'Argentina',note:'J組預測第1'} },
+    { label:'J1 vs I2', home:{team:'Argentina',note:'J組預測第1'}, away:{team:'Norway',note:'I組第1'} },
+    { label:'K1 vs L2', home:{team:'Colombia',note:'K組預測第1'}, away:{team:'England',note:'L組預測第1'} },
+    { label:'L1 vs K2', home:{team:'England',note:'L組預測第1'}, away:{team:'Portugal',note:'K組預測第2'} },
+  ];
+
+  const gridEl = document.getElementById('r16-grid');
+  gridEl.innerHTML = r16pairs.map(p => {
+    const h = teamInfo(p.home.team);
+    const a = teamInfo(p.away.team);
+    return `<div class="r16-match">
+      <div class="r16-label">🔮 ${p.label}</div>
+      <div class="r16-team"><span>${h.flag}</span><span>${h.name}</span><span style="margin-left:auto;font-size:10px;color:var(--muted)">${p.home.note}</span></div>
+      <div class="r16-vs">VS</div>
+      <div class="r16-team"><span>${a.flag}</span><span>${a.name}</span><span style="margin-left:auto;font-size:10px;color:var(--muted)">${p.away.note}</span></div>
+    </div>`;
+  }).join('');
+
+  // Official schedule
+  const offEl = document.getElementById('knockout-official');
+  const stages = [
+    { label:'🔥 32強（6/27–7/1）', desc:'小組賽結束後確定對陣' },
+    { label:'⚔️ 16強（7/2–7/3）', desc:'待確定' },
+    { label:'🏆 8強（7/2–7/3）', desc:'待確定' },
+    { label:'🌟 準決賽（7/5–7/6）', desc:'待確定' },
+    { label:'🥉 季軍戰（7/11）', desc:'Miami Gardens' },
+    { label:'🏆 決賽（7/12）', desc:'East Rutherford · 裁判：Mario Escobar' },
+  ];
+  offEl.innerHTML = stages.map(s => `
+    <div class="pred-list-item" style="margin-bottom:8px">
+      <div style="flex:1;font-size:13px;font-weight:600">${s.label}</div>
+      <div style="font-size:11px;color:var(--muted)">${s.desc}</div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════
+// CLOCK
+// ════════════════════════════════════════
+function updateClock() {
+  const tpe = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+  const h = String(tpe.getHours()).padStart(2,'0');
+  const m = String(tpe.getMinutes()).padStart(2,'0');
+  const s = String(tpe.getSeconds()).padStart(2,'0');
+  const el = document.getElementById('clock');
+  if (el) el.textContent = `${h}:${m}:${s}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (id === 'home')        { loadTodayMatches(); }
+  if (id === 'schedule')    { renderSchedule(); }
+  if (id === 'groups')      { renderGroups(); }
+  if (id === 'predictions') { renderPredictions(); }
+  if (id === 'knockout')    { renderKnockout(); }
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+loadTodayMatches();
+renderGroups(); // pre-render for snappiness
+renderPredictions();
+renderKnockout();
+</script>
+</body>
+</html>
